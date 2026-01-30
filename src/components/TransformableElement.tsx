@@ -472,9 +472,9 @@ export const TransformableElement: React.FC<TransformableElementProps> = ({
                         case 'equipment':
                             const eq = el as EquipmentElement;
                             const statusColors = {
-                                operational: 'bg-green-500/20 border-green-500 text-green-300',
-                                warning: 'bg-orange-500/20 border-orange-500 text-orange-300',
-                                critical: 'bg-red-500/20 border-red-500 text-red-300 animate-pulse-slow'
+                                operational: 'text-green-300',
+                                warning: 'text-orange-300',
+                                critical: 'text-red-300'
                             };
                             const statusDot = {
                                 operational: 'bg-green-500',
@@ -482,20 +482,52 @@ export const TransformableElement: React.FC<TransformableElementProps> = ({
                                 critical: 'bg-red-500 animate-ping'
                             };
 
+                            // Hexagon dimensions based on R=160
+                            // W = 277.128, H = 320
+                            // clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)
+
                             return (
-                                <div style={style} className={`flex flex-col backdrop-blur-md rounded-lg border-2 overflow-hidden ${statusColors[eq.status]}`}>
-                                    <div className="flex items-center justify-between p-2 bg-black/40 border-b border-white/10">
-                                        <span className="font-bold text-xs uppercase tracking-wider">{eq.name}</span>
-                                        <div className="flex items-center gap-1">
-                                            <div className={`w-2 h-2 rounded-full ${statusDot[eq.status]}`}></div>
+                                <div style={{ ...style, filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.5))' }} className="relative group">
+                                    {/* Hexagon Shape Container */}
+                                    <div
+                                        className="w-full h-full bg-slate-900/80 backdrop-blur-md flex flex-col items-center pt-12 pb-12 px-8 overflow-hidden transition-all duration-300 hover:bg-slate-800/90"
+                                        style={{
+                                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                        }}
+                                    >
+                                        {/* Status Header (Centered Top) */}
+                                        <div className="flex flex-col items-center mb-4">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <div className={`w-2 h-2 rounded-full ${statusDot[eq.status]}`}></div>
+                                                <span className={`font-bold text-xs uppercase tracking-wider ${statusColors[eq.status]}`}>{t(eq.name) || eq.name}</span>
+                                            </div>
+                                            <div className="w-12 h-0.5 bg-slate-700/50"></div>
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 text-center flex flex-col justify-center">
+                                            <p className="text-[10px] font-mono leading-relaxed opacity-80 text-blue-100">
+                                                {t(eq.description) || eq.description}
+                                            </p>
+                                        </div>
+
+                                        {/* Footer ID */}
+                                        <div className="mt-auto pt-4 text-[8px] font-mono uppercase tracking-widest opacity-40 text-slate-400">
+                                            SYS.ID: {eq.id.slice(-4)}
                                         </div>
                                     </div>
-                                    <div className="p-3 text-[10px] font-mono leading-relaxed opacity-80 overflow-y-auto">
-                                        {eq.description}
-                                    </div>
-                                    <div className="mt-auto p-1 bg-black/20 text-[8px] text-right font-mono uppercase tracking-widest opacity-50">
-                                        SYS.ID: {eq.id.slice(-4)}
-                                    </div>
+
+                                    {/* SVG Hexagon Border Overlay */}
+                                    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 277 320" preserveAspectRatio="none">
+                                        <polygon
+                                            points="138.5,1 276,80 276,240 138.5,319 1,240 1,80"
+                                            fill="none"
+                                            stroke={eq.status === 'critical' ? '#ef4444' : (eq.status === 'warning' ? '#f97316' : '#22d3ee')}
+                                            strokeWidth="2"
+                                            strokeOpacity="0.5"
+                                            className="group-hover:stroke-opacity-100 transition-all duration-300"
+                                        />
+                                    </svg>
                                 </div>
                             );
                         default:

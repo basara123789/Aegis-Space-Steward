@@ -2,6 +2,8 @@ import React, { useState, useRef, useCallback, useEffect, useMemo, forwardRef, u
 import type { Point, CanvasElement, ImageElement, AnalysisResult } from '../types';
 import type { OutpaintingState } from '../App';
 import { TransformableElement } from './TransformableElement';
+import { HexGridBackground } from './HexGridBackground';
+import SpaceBackground from './SpaceBackground';
 
 interface OutpaintingFrameProps {
   outpaintingState: OutpaintingState;
@@ -828,8 +830,7 @@ export const InfiniteCanvas = forwardRef<CanvasApi, InfiniteCanvasProps>(({
   return (
     <div
       ref={canvasRef}
-      className={`w-full h-full overflow-hidden bg-transparent 
-        bg-[radial-gradient(#22d3ee_1px,transparent_1px)] [background-size:40px_40px] shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]
+      className={`w-full h-full overflow-hidden relative bg-black
         ${cursorClass}`}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
@@ -843,6 +844,9 @@ export const InfiniteCanvas = forwardRef<CanvasApi, InfiniteCanvasProps>(({
       onTouchCancel={handleTouchEnd}
       style={{ touchAction: 'none' }}
     >
+      <SpaceBackground />
+      <HexGridBackground pan={pan} zoom={zoom} />
+
       <div
         className="transform-gpu select-none"
         style={{
