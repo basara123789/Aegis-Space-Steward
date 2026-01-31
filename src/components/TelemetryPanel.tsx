@@ -147,8 +147,15 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ t, visible, isEm
                 const h = (val / 100) * canvas.height;
                 const y = canvas.height - h;
 
-                // Green/Teal if regulating
-                ctx.fillStyle = isEmergency ? '#4ADE80' : (val > 80 ? '#F43F5E' : '#FFB000');
+                // Logic Inverted: 
+                // Normal = Green (#4ADE80)
+                // Emergency = Yellow (#FFB000) or Red (#F43F5E) if high
+                if (isEmergency) {
+                    ctx.fillStyle = val > 80 ? '#F43F5E' : '#FFB000';
+                } else {
+                    ctx.fillStyle = '#4ADE80';
+                }
+
                 ctx.fillRect(x, y, barWidth, h);
             });
 
@@ -159,10 +166,10 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ t, visible, isEm
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
             // Validated Algorithm: Linear Regression Projection (Mock)
-            // Emergency = Flat/Downward calm slope
-            const slopeY = isEmergency ? 10 : (Math.random() * 40 - 20);
+            // Emergency = Volatile Slope
+            const slopeY = isEmergency ? (Math.random() * 40 - 20) : 10;
             ctx.lineTo(canvas.width, lastY + slopeY);
-            ctx.strokeStyle = isEmergency ? '#4ADE80' : '#00E5FF';
+            ctx.strokeStyle = isEmergency ? '#F43F5E' : '#4ADE80'; // Red vs Green
             ctx.setLineDash([3, 3]);
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -211,9 +218,9 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ t, visible, isEm
             {/* ESA-496 Module */}
             <div className="border-b border-slate-700 p-3">
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className={`${isEmergency ? 'text-green-400' : 'text-[#00E5FF]'} tracking-widest font-bold`}>{t('driftModule')}</h3>
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${isEmergency ? 'bg-green-500/20 text-green-400' : (driftStatus === 'NOMINAL' ? 'bg-[#00E5FF]/20 text-[#00E5FF]' : 'bg-[#FFB000]/20 text-[#FFB000] animate-pulse')}`}>
-                        {driftStatus}
+                    <h3 className={`${isEmergency ? 'text-red-500 animate-pulse' : 'text-[#00E5FF]'} tracking-widest font-bold`}>{t('driftModule')}</h3>
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${isEmergency ? 'bg-red-500/20 text-red-500' : (driftStatus === 'NOMINAL' ? 'bg-[#00E5FF]/20 text-[#00E5FF]' : 'bg-[#FFB000]/20 text-[#FFB000] animate-pulse')}`}>
+                        {isEmergency ? 'CRITICAL' : driftStatus}
                     </span>
                 </div>
                 <div className={`relative w-full h-24 bg-[#0A1128] border ${isEmergency ? 'border-green-500/50' : 'border-slate-700'} rounded-lg overflow-hidden`}>

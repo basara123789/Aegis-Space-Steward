@@ -465,70 +465,66 @@ const App: React.FC = () => {
 
   // Crisis Scenario State
   const [isEmergency, setIsEmergency] = useState(false);
+  const [emergencyStep, setEmergencyStep] = useState<'idle' | 'alert' | 'breathing' | 'focus' | 'ar'>('idle');
+  const [breathingText, setBreathingText] = useState('BREATHE IN'); // New State
   const [showAROverlay, setShowAROverlay] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
+  // Breathing Cycle Effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (emergencyStep === 'breathing') {
+      setBreathingText('BREATHE IN');
+      interval = setInterval(() => {
+        setBreathingText(prev => prev === 'BREATHE IN' ? 'BREATHE OUT' : 'BREATHE IN');
+      }, 4000);
+    }
+    return () => clearInterval(interval);
+  }, [emergencyStep]);
+
   const triggerCalmingProtocol = useCallback(() => {
     setIsEmergency(true);
+    setEmergencyStep('alert');
 
     // 1. Reset View to ensure elements are visible and centered
     if (canvasApiRef.current) {
       canvasApiRef.current.resetView();
     }
 
-    // 2. Generate unique IDs
-    const forestId = `calm-forest-${Date.now()}`;
-    const guideId = `breath-guide-${Date.now()}`;
+    // 2. Turn O2 Critical
+    setElements(prev => prev.map(el =>
+      el.id === 'o2-regenerator' ? { ...el, status: 'critical' } : el
+    ));
 
-    // 3. Switch to calming scenery (Uploaded Image)
-    const forestImage: CanvasElement = {
-      id: forestId,
-      type: 'image',
-      src: '/forest-calm.jpg',
-      // Center the image (width 1400 / 2 = 700, height 900 / 2 = 450)
-      position: { x: -700, y: -450 },
-      width: 1400,
-      height: 900,
-      rotation: 0,
-      zIndex: 50, // Higher than connection lines, but below HUD
-      className: 'animate-pulse opacity-80' // Add opacity to ensure text is readable
-    } as unknown as CanvasElement;
+    // 3. Transition to Breathing after Delay - REMOVED for manual click interaction
+    // setTimeout(() => {
+    //   setEmergencyStep('breathing');
+    // }, 3000);
 
-    // 4. "Pausable" Breathing Guide Note
-    const breathingGuide: CanvasElement = {
-      id: guideId,
-      type: 'note',
-      content: "🌬️ BOX BREATHING GUIDE\n\n1. Inhale (4s)\n2. Hold (4s)\n3. Exhale (4s)\n4. Hold (4s)\n\nRepeat x4 cycles to reduce cortisol.",
-      // Center the note (width 300 / 2 = 150, height 250 / 2 = 125)
-      position: { x: -150, y: -125 },
-      width: 300,
-      height: 250,
-      rotation: 0,
-      zIndex: 100, // Topmost on canvas
-      color: 'bg-green-500 shadow-2xl border-2 border-white/50'
-    } as CanvasElement;
-
-    setElements(prev => [...prev, forestImage, breathingGuide]);
-
-    // Trigger Notification
-    setNotification('Stress Threshold Exceeded. Initiating Protocol "Serenity"...');
-
-    // Restore AR Interaction (Protocol Step 2)
-    setTimeout(() => {
-      setNotification('Bio-Feedback Stabilized. Initiating Cognitive Calibration (B2108)...');
-      setShowAROverlay(true);
-    }, 8000);
   }, [setElements]);
 
+  const handleBreathingClick = () => {
+    setEmergencyStep('focus');
+    // Show AR Overlay immediately as per requirement
+    setShowAROverlay(true);
+  };
+
   const handleARComplete = () => {
+    // 1. Trigger Bambu Bridge
+    fetch('http://localhost:8999/print')
+      .then(res => res.json())
+      .then(data => console.log('Bridge result:', data))
+      .catch(err => console.error('Bridge failed:', err));
+
+    // 2. Reset UI
     setShowAROverlay(false);
     setIsEmergency(false);
-    setNotification('Protocol Aegis: Alignment Stabilized. Aromatherapy Efficiency: 100%.');
+    setEmergencyStep('idle');
+    setNotification('Protocol Aegis: Alignment Stabilized. Physical Repair Initiated.');
 
-    // Cleanup: Remove Calming Elements
-    setElements(prev => prev.filter(el =>
-      !el.id.startsWith('calm-forest-') &&
-      !el.id.startsWith('breath-guide-')
+    // 3. Restore O2 Status
+    setElements(prev => prev.map(el =>
+      el.id === 'o2-regenerator' ? { ...el, status: 'operational' } : el
     ));
 
     setTimeout(() => setNotification(null), 5000);
@@ -1890,6 +1886,16 @@ const App: React.FC = () => {
       />
 
 
+      {/* EVA SYSTEM WATERMARK */}
+      <div className="absolute top-6 left-6 z-[60] pointer-events-none select-none">
+        <h1 className="text-4xl font-black text-white/20 tracking-[0.2em] font-mono border-l-4 border-white/20 pl-4">
+          EVA SYSTEM
+        </h1>
+        <p className="text-[10px] text-white/10 uppercase tracking-[0.5em] pl-4 mt-1">
+          ADVANCED BIOMETRIC CONTROL
+        </p>
+      </div>
+
       <TelemetryPanel t={t} visible={!isMenuCollapsed} isEmergency={isEmergency} />
 
 
@@ -1924,8 +1930,90 @@ const App: React.FC = () => {
         <span className="text-xl group-hover:animate-spin">⚠️</span>
       </button>
 
-      {/* AR Overlay */}
-      <ARAlignmentOverlay isOpen={showAROverlay} onComplete={handleARComplete} t={t} />
+      {/* EMERGENCY SCENARIO OVERLAYS */}
+      {/* EMERGENCY SCENARIO OVERLAYS */}
+      {isEmergency && emergencyStep === 'alert' && (
+        <div
+          onClick={() => setEmergencyStep('breathing')}
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-all duration-1000"
+        >
+          <h1 className="text-4xl font-light text-teal-300 tracking-[0.3em] border-y border-teal-500/50 py-4 px-12 bg-teal-950/60 backdrop-blur-md animate-fadeIn">
+            PSYCHOLOGICAL SUPPORT PROTOCOL
+          </h1>
+          <p className="mt-8 text-teal-400/50 text-sm tracking-widest animate-pulse font-mono">
+            [ CLICK ANYWHERE TO INITIATE ]
+          </p>
+        </div>
+      )}
+
+      {(emergencyStep === 'breathing' || emergencyStep === 'focus') && (
+        <div className="absolute inset-0 z-40 overflow-hidden animate-fadeIn">
+          <style>{`
+            @keyframes cinematic {
+              from { opacity: 0; transform: scale(1.2); filter: blur(20px); }
+              to { opacity: 0.6; transform: scale(1); filter: blur(0px); }
+            }
+            @keyframes gradient-overlay {
+              from { opacity: 0; background-position: 0% 100%; }
+              to { opacity: 1; background-position: 0% 0%; }
+            }
+          `}</style>
+          {/* Forest Background */}
+          <img
+            src="/forest.gif" // Updated to GIF
+            alt="Forest"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ animation: 'cinematic 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards' }}
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/20 via-teal-900/10 to-black/40 mix-blend-overlay"
+            style={{ animation: 'gradient-overlay 3s ease-out forwards' }}
+          ></div>
+
+          {/* Text Interaction */}
+          <div className="absolute inset-0 flex items-center justify-center z-50">
+            <div
+              onClick={() => {
+                if (emergencyStep === 'breathing') handleBreathingClick();
+                if (emergencyStep === 'focus') setShowAROverlay(true);
+              }}
+              className={`
+                            cursor-pointer transition-all duration-1000 transform
+                            flex flex-col items-center justify-center gap-6 relative
+                            ${emergencyStep === 'breathing' ? 'hover:scale-105' : 'hover:scale-105'}
+                        `}
+            >
+              {emergencyStep === 'breathing' ? (
+                <>
+                  {/* Breathing Animation Circle */}
+                  <div className={`absolute w-[500px] h-[500px] rounded-full border border-teal-400/30 opacity-50 ${breathingText === 'BREATHE IN' ? 'animate-[ping_4s_cubic-bezier(0,0,0.2,1)_infinite]' : 'scale-90 duration-[4000ms] transition-transform ease-in-out'}`}></div>
+                  <div className={`absolute w-[300px] h-[300px] rounded-full bg-teal-500/10 blur-3xl ${breathingText === 'BREATHE IN' ? 'animate-pulse' : 'opacity-20 transition-opacity duration-[4000ms]'}`}></div>
+
+                  <h2 className="text-6xl font-thin text-white tracking-[0.2em] drop-shadow-[0_0_15px_rgba(20,184,166,0.5)] transition-all duration-1000">
+                    {breathingText}
+                  </h2>
+                  <p className="text-teal-200/80 text-sm font-mono tracking-widest mt-8 animate-pulse">
+                    [ CLICK TO SYNC BIOMETRICS ]
+                  </p>
+                </>
+              ) : (
+                <div className="p-12 rounded-2xl border border-cyan-400/30 bg-black/40 backdrop-blur-sm shadow-[0_0_30px_rgba(34,211,238,0.1)] group">
+                  <h2 className="text-4xl font-bold text-cyan-400 tracking-widest border-b border-cyan-500/30 pb-4 mb-2 group-hover:text-cyan-300 transition-colors">
+                    SMALL TASK FOCUS
+                  </h2>
+                  <p className="text-cyan-500/60 text-xs font-mono text-center tracking-widest mt-2 group-hover:text-cyan-400">
+                    INITIATE ALIGNMENT SEQUENCE &gt;
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAROverlay && (
+        <ARAlignmentOverlay isOpen={showAROverlay} onComplete={handleARComplete} t={t} />
+      )}
 
       {/* HUD Overlay (Right Side now) */}
       {/* HUD Overlay (Top Center) */}
