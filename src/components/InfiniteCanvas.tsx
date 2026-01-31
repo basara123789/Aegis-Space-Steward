@@ -984,6 +984,7 @@ export const InfiniteCanvas = forwardRef<CanvasApi, InfiniteCanvasProps>(({
         </div>
       )}
 
+      {/* GENERATION MENU DISABLED BY USER REQUEST
       {selectionBbox && !outpaintingState && (
         <div
           className="absolute z-10 generate-controls flex flex-col gap-2 p-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200"
@@ -1025,6 +1026,7 @@ export const InfiniteCanvas = forwardRef<CanvasApi, InfiniteCanvasProps>(({
           </button>
         </div>
       )}
+      */}
 
       {marqueeRect && (
         <div

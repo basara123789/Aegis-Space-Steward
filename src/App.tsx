@@ -1567,7 +1567,8 @@ const App: React.FC = () => {
 
   const handleContextMenu = useCallback((e: React.MouseEvent | React.TouchEvent, worldPoint: Point, elementId: string | null) => {
     e.preventDefault();
-
+    return; // DISABLED: Context Menu / Generation Menu disabled by user request.
+    /*
     const point = 'touches' in e ? e.touches[0] : e;
     if (!point) return;
 
@@ -1575,7 +1576,7 @@ const App: React.FC = () => {
       handleSelectElement(elementId, false);
     }
     setContextMenu({ x: point.clientX, y: point.clientY, worldPoint, elementId });
-
+    */
   }, [selectedElementIds, handleSelectElement]);
 
   const handleExportCanvas = () => {
@@ -1936,7 +1937,7 @@ const App: React.FC = () => {
       {/* Demo Trigger Button (Bottom Left) */}
       <button
         onClick={triggerCalmingProtocol}
-        className="absolute bottom-8 left-8 z-50 p-4 bg-slate-800 hover:bg-slate-700 text-amber-500 rounded-full shadow-lg border border-slate-600 transition-all hover:scale-110 active:scale-95 group"
+        className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-[100] p-4 bg-slate-800 hover:bg-slate-700 text-amber-500 rounded-full shadow-lg border border-slate-600 transition-all hover:scale-110 active:scale-95 group"
         title="SIMULATE HIGH STRESS (Triggers Calming Protocol)"
       >
         <span className="text-xl group-hover:animate-spin">⚠️</span>
