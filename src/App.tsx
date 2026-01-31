@@ -2041,7 +2041,7 @@ const App: React.FC = () => {
 
       {/* Existing Side Panel (Right) */}
       <div
-        className={`absolute top-4 z-20 p-4 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 w-72 max-w-[calc(100vw-2rem)] flex flex-col gap-4 transition-all duration-300 ease-in-out ${isMenuCollapsed ? 'translate-x-full' : 'translate-x-0'} right-4 max-h-[calc(100vh-2rem)] overflow-y-auto`}
+        className={`absolute top-4 z-20 p-4 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 w-60 md:w-72 max-w-[calc(100vw-2rem)] flex flex-col gap-4 transition-all duration-300 ease-in-out ${isMenuCollapsed ? 'translate-x-full' : 'translate-x-0'} right-4 max-h-[calc(100vh-2rem)] overflow-y-auto`}
       >
         <div className="flex justify-between items-start">
           <div>

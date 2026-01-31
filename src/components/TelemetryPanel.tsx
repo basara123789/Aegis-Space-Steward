@@ -182,7 +182,7 @@ export const TelemetryPanel: React.FC<TelemetryPanelProps> = ({ t, visible, isEm
     }, [isEmergency]);
 
     return (
-        <div className={`fixed left-4 top-24 bottom-24 w-64 bg-slate-900/90 backdrop-blur-md border-r-2 ${isEmergency ? 'border-green-500/50 shadow-[0_0_30px_rgba(74,222,128,0.2)]' : 'border-slate-700/50 shadow-[10px_0_20px_rgba(0,0,0,0.5)]'} flex flex-col pointer-events-none select-none z-40 overflow-hidden font-mono text-[10px] rounded-r-3xl transition-all duration-500 ease-in-out ${visible ? 'translate-x-0' : '-translate-x-[200%]'}`}>
+        <div className={`fixed left-4 top-24 bottom-24 w-56 md:w-64 bg-slate-900/90 backdrop-blur-md border-r-2 ${isEmergency ? 'border-green-500/50 shadow-[0_0_30px_rgba(74,222,128,0.2)]' : 'border-slate-700/50 shadow-[10px_0_20px_rgba(0,0,0,0.5)]'} flex flex-col pointer-events-none select-none z-40 overflow-hidden font-mono text-[10px] rounded-r-3xl transition-all duration-500 ease-in-out ${visible ? 'translate-x-0' : '-translate-x-[200%]'}`}>
 
             {/* Crew Physiological Data */}
             <div className="border-b border-slate-700 p-3">
