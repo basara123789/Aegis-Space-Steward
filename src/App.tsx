@@ -445,7 +445,19 @@ const App: React.FC = () => {
   const [outpaintingState, setOutpaintingState] = useState<OutpaintingState | null>(null);
   const [imageStyle, setImageStyle] = useState<string>('Default');
   const [imageAspectRatio, setImageAspectRatio] = useState<string>('1:1');
-  const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(() => window.innerWidth < 1024);
+
+  // Auto-collapse on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsMenuCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [language, setLanguage] = useState<'en' | 'zh'>('zh');
   const [panelAlignment, setPanelAlignment] = useState<'left' | 'right'>('right');
@@ -2029,7 +2041,7 @@ const App: React.FC = () => {
 
       {/* Existing Side Panel (Right) */}
       <div
-        className={`absolute top-4 z-20 p-4 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 w-72 flex flex-col gap-4 transition-all duration-300 ease-in-out ${isMenuCollapsed ? 'translate-x-full' : 'translate-x-0'} right-4 max-h-[calc(100vh-2rem)] overflow-y-auto`}
+        className={`absolute top-4 z-20 p-4 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-2xl border border-slate-700 w-72 max-w-[calc(100vw-2rem)] flex flex-col gap-4 transition-all duration-300 ease-in-out ${isMenuCollapsed ? 'translate-x-full' : 'translate-x-0'} right-4 max-h-[calc(100vh-2rem)] overflow-y-auto`}
       >
         <div className="flex justify-between items-start">
           <div>
